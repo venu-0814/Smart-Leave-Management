@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SLMS — Admin Dashboard</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar Overlay (mobile) -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo"><i data-lucide="graduation-cap" style="width:22px;height:22px;"></i> SLMS</div>
+                <div class="tagline">Admin Console</div>
+            </div>
+            <div class="sidebar-nav">
+                <div class="nav-section-label">Navigation</div>
+                <button class="nav-item active" onclick="showSection('overview')" id="nav-overview">
+                    <span class="icon"><i data-lucide="layout-dashboard"></i></span> System Overview
+                </button>
+                <button class="nav-item" onclick="showSection('ai')" id="nav-ai">
+                    <span class="icon"><i data-lucide="brain"></i></span> AI Risk Analysis
+                </button>
+            </div>
+            <div class="sidebar-footer">
+                <div class="user-chip">
+                    <div class="avatar">A</div>
+                    <div class="user-info">
+                        <div class="name">Administrator</div>
+                        <div class="role">System Admin</div>
+                    </div>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="logout()"
+                    style="width:100%;margin-top:10px;justify-content:center;">
+                    <i data-lucide="log-out" style="width:14px;height:14px;"></i> Logout
+                </button>
+            </div>
+        </nav>
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="hamburger-btn" id="hamburger-btn">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div class="topbar-title" id="topbar-title">System Overview</div>
+            </div>
+            <div class="topbar-actions">
+                <div class="topbar-search">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search…" />
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="refreshAll()">
+                    <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Refresh
+                </button>
+                <span id="last-updated" style="font-size:12px;color:var(--text-muted);"></span>
+                <div class="topbar-profile">
+                    <div class="avatar" style="width:30px;height:30px;font-size:11px;">A</div>
+                    <span class="profile-name">Admin</span>
+                    <span class="profile-chevron"><i data-lucide="chevron-down"></i></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- ══ Overview ════════════════════════════ -->
+            <div id="section-overview" class="section-animate">
+                <div class="stats-grid" id="stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="users"
+                                style="width:26px;height:26px;color:var(--accent-blue);"></i></div>
+                        <div class="stat-value" id="s-students">—</div>
+                        <div class="stat-label">Total Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="book-open"
+                                style="width:26px;height:26px;color:var(--accent-purple);"></i></div>
+                        <div class="stat-value" id="s-mentors">—</div>
+                        <div class="stat-label">Total Mentors</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="clock"
+                                style="width:26px;height:26px;color:var(--accent-orange);"></i></div>
+                        <div class="stat-value" id="s-pending">—</div>
+                        <div class="stat-label">Pending Leaves</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="check-circle"
+                                style="width:26px;height:26px;color:var(--accent-green);"></i></div>
+                        <div class="stat-value" id="s-approved">—</div>
+                        <div class="stat-label">Approved Leaves</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="bell-ring"
+                                style="width:26px;height:26px;color:var(--accent-red);"></i></div>
+                        <div class="stat-value" id="s-alerts">—</div>
+                        <div class="stat-label">Open Alerts</div>
+                    </div>
+                </div>
+
+                <!-- AI Teaser -->
+                <div class="card card-padded" style="border-left:4px solid var(--accent-blue);margin-top:8px;">
+                    <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+                        <div
+                            style="width:48px;height:48px;border-radius:var(--radius-md);background:var(--accent-blue);display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <i data-lucide="brain" style="width:24px;height:24px;color:white;"></i>
+                        </div>
+                        <div style="flex:1;min-width:200px;">
+                            <h4 style="margin-bottom:4px;">AI Risk Analysis Engine</h4>
+                            <div style="font-size:13px;color:var(--text-secondary);">Real-time leave pattern analysis
+                                and dropout risk prediction powered by intelligent analytics.</div>
+                        </div>
+                        <button class="btn btn-primary" onclick="showSection('ai')">
+                            <i data-lucide="arrow-right" style="width:16px;height:16px;"></i> View Analysis
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ AI Risk Analysis ════════════════════ -->
+            <div id="section-ai" style="display:none;">
+
+                <!-- Summary Stats -->
+                <div class="stats-grid" style="grid-template-columns:repeat(4,1fr);" id="ai-stats">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="shield-check"
+                                style="width:26px;height:26px;color:var(--accent-green);"></i></div>
+                        <div class="stat-value" style="color:var(--accent-green);" id="ai-safe">—</div>
+                        <div class="stat-label">Safe</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="eye"
+                                style="width:26px;height:26px;color:var(--accent-cyan);"></i></div>
+                        <div class="stat-value" style="color:var(--accent-cyan);" id="ai-monitor">—</div>
+                        <div class="stat-label">Monitor</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="alert-triangle"
+                                style="width:26px;height:26px;color:var(--accent-orange);"></i></div>
+                        <div class="stat-value" style="color:var(--accent-orange);" id="ai-risk">—</div>
+                        <div class="stat-label">At Risk</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="alert-octagon"
+                                style="width:26px;height:26px;color:var(--accent-red);"></i></div>
+                        <div class="stat-value" style="color:var(--accent-red);" id="ai-critical">—</div>
+                        <div class="stat-label">Critical</div>
+                    </div>
+                </div>
+
+                <!-- Risk Table -->
+                <div class="card" style="margin-top:8px;">
+                    <div class="section-header" style="padding:20px 20px 0;">
+                        <div class="section-title"><span class="dot"></span> Student Risk Analysis</div>
+                        <div id="ai-timestamp" style="font-size:12px;color:var(--text-muted);"></div>
+                    </div>
+
+                    <!-- Desktop Table -->
+                    <div class="table-wrapper desktop-only"
+                        style="margin-top:12px;border:none;border-top:1px solid var(--border);border-radius:0 0 var(--radius-lg) var(--radius-lg);">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Roll No</th>
+                                    <th>Branch</th>
+                                    <th>Attendance</th>
+                                    <th>Leaves (60d)</th>
+                                    <th>Leaves (Month)</th>
+                                    <th>Risk Score</th>
+                                    <th>Status</th>
+                                    <th>Prediction</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ai-table-body">
+                                <tr>
+                                    <td colspan="9">
+                                        <div class="loading-state">
+                                            <div class="spinner"></div> Analyzing patterns…
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Cards -->
+                    <div class="mobile-cards-container" id="ai-cards-mobile">
+                        <div class="loading-state">
+                            <div class="spinner"></div> Analyzing patterns…
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Bottom Tab Bar (Mobile) -->
+    <nav class="bottom-tab-bar">
+        <div class="bottom-tab-bar-inner">
+            <button class="bottom-tab active" data-section="overview">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Overview</span>
+            </button>
+            <button class="bottom-tab" data-section="ai">
+                <i data-lucide="brain"></i>
+                <span>AI Analysis</span>
+            </button>
+        </div>
+    </nav>
+
+    <div id="toast-container"></div>
+    <script src="js/api.js"></script>
+    <script src="js/admin.js"></script>
+</body>
+
+</html>

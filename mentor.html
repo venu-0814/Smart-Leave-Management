@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>SLMS — Mentor Dashboard</title>
+    <link rel="stylesheet" href="styles/main.css" />
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+</head>
+
+<body>
+    <div class="app-layout">
+
+        <!-- Sidebar Overlay (mobile) -->
+        <div id="sidebar-overlay" class="sidebar-overlay"></div>
+
+        <!-- Sidebar -->
+        <nav class="sidebar">
+            <div class="sidebar-brand">
+                <div class="logo"><i data-lucide="graduation-cap" style="width:22px;height:22px;"></i> SLMS</div>
+                <div class="tagline">Mentor Portal</div>
+            </div>
+            <div class="sidebar-nav">
+                <div class="nav-section-label">Navigation</div>
+                <button class="nav-item active" onclick="showSection('overview')" id="nav-overview">
+                    <span class="icon"><i data-lucide="layout-dashboard"></i></span> Overview
+                </button>
+                <button class="nav-item" onclick="showSection('pending')" id="nav-pending">
+                    <span class="icon"><i data-lucide="clock"></i></span> Pending Requests
+                    <span id="pending-badge"
+                        style="margin-left:auto;background:var(--accent-orange);color:white;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;display:none;"></span>
+                </button>
+                <button class="nav-item" onclick="showSection('students')" id="nav-students">
+                    <span class="icon"><i data-lucide="users"></i></span> My Students
+                </button>
+                <button class="nav-item" onclick="showSection('alerts')" id="nav-alerts">
+                    <span class="icon"><i data-lucide="bell-ring"></i></span> Absence Alerts
+                    <span id="alerts-badge"
+                        style="margin-left:auto;background:var(--accent-red);color:#fff;font-size:10px;font-weight:700;padding:2px 7px;border-radius:99px;display:none;"></span>
+                </button>
+            </div>
+            <div class="sidebar-footer">
+                <div class="user-chip">
+                    <div class="avatar" id="mentor-avatar">M</div>
+                    <div class="user-info">
+                        <div class="name" id="sidebar-name">Mentor</div>
+                        <div class="role">Mentor / Faculty</div>
+                    </div>
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="logout()"
+                    style="width:100%;margin-top:10px;justify-content:center;">
+                    <i data-lucide="log-out" style="width:14px;height:14px;"></i> Logout
+                </button>
+            </div>
+        </nav>
+
+        <!-- Topbar -->
+        <header class="topbar">
+            <div style="display:flex;align-items:center;gap:12px;">
+                <button class="hamburger-btn" id="hamburger-btn">
+                    <i data-lucide="menu"></i>
+                </button>
+                <div class="topbar-title" id="topbar-title">Mentor Dashboard</div>
+            </div>
+            <div class="topbar-actions">
+                <div class="topbar-search">
+                    <i data-lucide="search"></i>
+                    <input type="text" placeholder="Search students…" />
+                </div>
+                <button class="btn btn-ghost btn-sm" onclick="refreshAll()">
+                    <i data-lucide="refresh-cw" style="width:14px;height:14px;"></i> Refresh
+                </button>
+                <div class="topbar-profile">
+                    <div class="avatar" style="width:30px;height:30px;font-size:11px;" id="topbar-mentor-avatar">M</div>
+                    <span class="profile-name" id="topbar-mentor-name">Mentor</span>
+                    <span class="profile-chevron"><i data-lucide="chevron-down"></i></span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Main Content -->
+        <main class="main-content">
+
+            <!-- ══ Overview ════════════════════════════ -->
+            <div id="section-overview" class="section-animate">
+                <div class="stats-grid" id="mentor-stats-grid">
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="users"
+                                style="width:26px;height:26px;color:var(--accent-blue);"></i></div>
+                        <div class="stat-value" id="st-total">—</div>
+                        <div class="stat-label">My Students</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="clock"
+                                style="width:26px;height:26px;color:var(--accent-orange);"></i></div>
+                        <div class="stat-value" id="st-pending">—</div>
+                        <div class="stat-label">Pending Requests</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="bell-ring"
+                                style="width:26px;height:26px;color:var(--accent-red);"></i></div>
+                        <div class="stat-value" id="st-alerts">—</div>
+                        <div class="stat-label">Unresolved Alerts</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-icon"><i data-lucide="alert-triangle"
+                                style="width:26px;height:26px;color:var(--accent-red);"></i></div>
+                        <div class="stat-value" id="st-low-att">—</div>
+                        <div class="stat-label">Low Attendance (&lt;75%)</div>
+                    </div>
+                </div>
+
+                <!-- Pending section preview -->
+                <div class="card" style="margin-top:4px;">
+                    <div class="section-header" style="padding:20px 20px 0;">
+                        <div class="section-title"><span class="dot"></span> Pending Leave Requests</div>
+                        <button class="btn btn-ghost btn-sm" onclick="showSection('pending')">View All →</button>
+                    </div>
+
+                    <!-- Desktop Table -->
+                    <div class="table-wrapper desktop-only"
+                        style="margin-top:12px;border:none;border-top:1px solid var(--border);border-radius:0 0 var(--radius-lg) var(--radius-lg);">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Roll No</th>
+                                    <th>Dates</th>
+                                    <th>Reason</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="overview-pending-body">
+                                <tr>
+                                    <td colspan="5">
+                                        <div class="loading-state">
+                                            <div class="spinner"></div> Loading…
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Cards -->
+                    <div class="mobile-cards-container" id="overview-pending-cards-mobile">
+                        <div class="loading-state">
+                            <div class="spinner"></div> Loading…
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ Pending Requests ════════════════════ -->
+            <div id="section-pending" style="display:none;">
+                <div class="card">
+                    <div class="section-header" style="padding:20px 20px 0;">
+                        <div class="section-title"><span class="dot"></span> All Pending Requests</div>
+                    </div>
+
+                    <!-- Desktop Table -->
+                    <div class="table-wrapper desktop-only"
+                        style="margin-top:12px;border:none;border-top:1px solid var(--border);border-radius:0 0 var(--radius-lg) var(--radius-lg);">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>Student</th>
+                                    <th>Roll No</th>
+                                    <th>Branch</th>
+                                    <th>From</th>
+                                    <th>To</th>
+                                    <th>Type</th>
+                                    <th>Reason</th>
+                                    <th>Applied</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="pending-body">
+                                <tr>
+                                    <td colspan="9">
+                                        <div class="loading-state">
+                                            <div class="spinner"></div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <!-- Mobile Cards -->
+                    <div class="mobile-cards-container" id="pending-cards-mobile">
+                        <div class="loading-state">
+                            <div class="spinner"></div> Loading…
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ My Students ════════════════════════ -->
+            <div id="section-students" style="display:none;">
+                <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;"
+                    id="students-grid">
+                    <div class="loading-state">
+                        <div class="spinner"></div> Loading students…
+                    </div>
+                </div>
+            </div>
+
+            <!-- ══ Absence Alerts ══════════════════════ -->
+            <div id="section-alerts" style="display:none;">
+                <div class="section-header">
+                    <div class="section-title"><span class="dot" style="background:var(--accent-red);"></span>
+                        Uninformed Absence Alerts</div>
+                </div>
+                <div id="alerts-list">
+                    <div class="loading-state">
+                        <div class="spinner"></div> Loading alerts…
+                    </div>
+                </div>
+            </div>
+
+        </main>
+    </div>
+
+    <!-- Bottom Tab Bar (Mobile) -->
+    <nav class="bottom-tab-bar">
+        <div class="bottom-tab-bar-inner">
+            <button class="bottom-tab active" data-section="overview">
+                <i data-lucide="layout-dashboard"></i>
+                <span>Overview</span>
+            </button>
+            <button class="bottom-tab" data-section="pending">
+                <i data-lucide="clock"></i>
+                <span>Pending</span>
+                <span class="tab-badge" id="pending-tab-badge" style="display:none;"></span>
+            </button>
+            <button class="bottom-tab" data-section="students">
+                <i data-lucide="users"></i>
+                <span>Students</span>
+            </button>
+            <button class="bottom-tab" data-section="alerts">
+                <i data-lucide="bell-ring"></i>
+                <span>Alerts</span>
+                <span class="tab-badge" id="alerts-tab-badge" style="display:none;"></span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Contact Modal -->
+    <div id="contact-modal" class="modal-overlay">
+        <div class="card card-padded" style="max-width:360px;width:100%;margin:24px;">
+            <div style="font-size:18px;font-weight:700;margin-bottom:16px;display:flex;align-items:center;gap:8px;">
+                <i data-lucide="phone" style="width:20px;height:20px;color:var(--accent-green);"></i> Parent Contact
+            </div>
+            <div id="modal-content"></div>
+            <div style="display:flex;gap:10px;margin-top:20px;">
+                <button id="call-btn" class="call-btn btn-lg" style="flex:1;justify-content:center;">
+                    <i data-lucide="phone-call" style="width:16px;height:16px;"></i> Call Now
+                </button>
+                <button class="btn btn-ghost" onclick="closeModal()">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="toast-container"></div>
+    <script src="js/api.js"></script>
+    <script src="js/mentor.js"></script>
+</body>
+
+</html>
